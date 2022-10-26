@@ -1,0 +1,33 @@
+﻿@model List<siwon.Models.Book>
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+<div>
+    <a class="btn btn-danger" asp-controller="Book" asp-action="BookForm">Dodaj Książkę</a>
+        <table class="table">
+        @foreach(var book in @Model)
+        {
+                <tr>
+                    <td>
+                    @book.Title
+                    </td>
+                    <td>
+                    @book.Author
+                    </td>
+
+                   
+                    <td>
+                        <a class="btn btn-danger" asp-controller="Book" asp-action="Delete" asp-route-id=@book.Id >Usuń </a>
+                    </td>
+                         <td>
+                            <a class="btn btn-danger" asp-controller="Book" asp-action="Edit" asp-route-id=@book.Id >Edytuj </a>
+                        </td>
+                    
+                </tr>
+        }
+        </table>
+   
+</div>
