@@ -1,15 +1,22 @@
-using Microsoft.AspNetCore.Builder;
+using siwon.Models;
 
 namespace siwon
 {
     public class Program
     {
+        public static AppDbContext? Database { get; private set; } // statyczna instancja bazy danych
+
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+
+            var db = new AppDbContext(); // tworzymy now¹ instancjê
+            db.Database.EnsureCreated(); // upewniamy siê ¿e baza danych istnieje
+            Database = db; // przypisujemy lokaln¹ zmienn¹ do publicznej statycznej
+            // mo¿na by to zrobiæ ³adniej u¿ywaj¹c dependency injection ale nie wiem czy mieliœcie
 
             var app = builder.Build();
 

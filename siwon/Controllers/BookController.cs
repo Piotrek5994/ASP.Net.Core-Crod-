@@ -1,60 +1,126 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using siwon.Models;
 
+
 namespace siwon.Controllers
 {
     public class BookController : Controller
     {
-        public static int counter = 4;
+        private readonly AppDbContext _db; // prywatna referencja do bazy danych co by za każdym razem nie pisać Program.Database.
 
-        private static List<Book> books = new List<Book>()
+        public BookController() =>   // przypisujemy statyczne pole Database do prywatnej referencji _db. 
+            _db = Program.Database!; // Dodajemy ! żeby pokazać kompilatorowi że na tym etapie to nie może być już null
+
+        public IActionResult Delete(int id)
         {
-            new Book() {Id=1, Title="W pustyni i w puszczy", Author="Henryk Sienkiewicz", CreateDate=DateTime.Now},
-            new Book() {Id=2, Title="Pan Tadeusz", Author="Adam Mickiewicz", CreateDate=DateTime.Now},
-            new Book() {Id=3, Title="Dziady", Author="Adam Mickiewicz", CreateDate=DateTime.Now},
-            new Book() {Id=4, Title="Lalka", Author="Bolesław Prus", CreateDate=DateTime.Now},
-        };
+            var book = _db.Books.Find(id);
 
-        public IActionResult Index() => View("Index", books);
+            if (book == null)
+                return RedirectToAction("Index");
 
-        public IActionResult Delete([FromRoute] int id)
-        {
-            Book? b = books.FirstOrDefault(book => book.Id == id);
-            if (b is not null)
-                books.Remove(b);
-            return View("Index", books);
+            _db.Books.Remove(book);
+            _db.SaveChanges();
+
+            return RedirectToAction("Index");
         }
 
-        public IActionResult BookForm() => View("BookForm");
+        public IActionResult BookForm()
+        {
+            return View("BookForm"); // wiem, że tego "BookForm" tutaj nie trzeba ale lepiej być bardziej precyzyjnym a) nie ufaj komputerom b) łatwiej się czyta
+        }
 
         [HttpPost]
-        public IActionResult BookForm([FromForm] Book book)
+        public IActionResult BookForm(Book? newBook) // METODA DODANIA I UPDATU
         {
-            if (!ModelState.IsValid) return View();
+            if (newBook == null)
+                return RedirectToAction("Index");
 
-            Book? b = books.FirstOrDefault(x => x.Id == book.Id);
-            if (b is null)
+            var book = _db.Books.Find(newBook.Id); // pobierz z bazy danych książkę o Id edytowanego
+
+            if (book == null) // jeżeli null to nie istnieje dodaj nową
             {
-                book.Id = ++counter;
-                books.Add(book);
+                _db.Books.Add(newBook);
             }
-            else
+            else // jeżeli nie null zedytuj dane na nowe
             {
-                b.Title = book.Title;
-                b.Author = book.Author;
-                b.CreateDate = book.CreateDate;
+                book.Title = newBook.Title;
+                book.Author = newBook.Author;
+                book.CreateDate = newBook.CreateDate;
+
+                _db.Books.Update(book); // zaktualizuj book w bazie danych
             }
-            return View("Index", books);
+            _db.SaveChanges();
+
+            return RedirectToAction("Index");
         }
 
-        public IActionResult Edit([FromRoute] int id)
+        public IActionResult Index()
         {
-            Book? b = books.FirstOrDefault(x => x.Id == id);
+            return View(_db.Books.ToList());
+        }
 
-            if (b is null)
-                return View("Index", books);
-
-            return View("BookForm", b);
+        public IActionResult Edit(int id)
+        {
+            var book = _db.Books.Find(id);
+            return View(book);
         }
     }
 }
+
+
+
+
+
+//public class BookController : Controller
+//{
+//    public static int counter = 4;
+
+//    private static List<Book> books = new()
+//    {
+//        new() { Id = 1, Title = "W pustyni i w puszczy", Author = "Henryk Sienkiewicz", CreateDate = DateTime.Now },
+//        new() { Id = 2, Title = "Pan Tadeusz", Author = "Adam Mickiewicz", CreateDate = DateTime.Now },
+//        new() { Id = 3, Title = "Dziady", Author = "Adam Mickiewicz", CreateDate = DateTime.Now },
+//        new() { Id = 4, Title = "Lalka", Author = "Bolesław Prus", CreateDate = DateTime.Now },
+//    };
+
+//    public IActionResult Index() => View("Index", books);
+
+//    public IActionResult Delete([FromRoute] int id)
+//    {
+//        Book? b = books.FirstOrDefault(book => book.Id == id);
+//        if (b is not null)
+//            books.Remove(b);
+//        return View("Index", books);
+//    }
+
+//    public IActionResult BookForm() => View("BookForm");
+
+//    [HttpPost]
+//    public IActionResult BookForm([FromForm] Book book)
+//    {
+//        if (!ModelState.IsValid) return View();
+
+//        Book? b = books.FirstOrDefault(x => x.Id == book.Id);
+//        if (b is null)
+//        {
+//            book.Id = ++counter;
+//            books.Add(book);
+//        }
+//        else
+//        {
+//            b.Title = book.Title;
+//            b.Author = book.Author;
+//            b.CreateDate = book.CreateDate;
+//        }
+
+//        return View("Index", books);
+//    }
+
+//    public IActionResult Edit([FromRoute] int id)
+//    {
+//        Book? b = books.FirstOrDefault(x => x.Id == id);
+
+//        return b is null ? View("Index", books) : View("BookForm", b);
+//    }
+//}
+//}

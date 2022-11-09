@@ -1,0 +1,33 @@
+﻿@model siwon.Models.Book
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+<form asp-action="BookForm" asp-controller="Book" method="post">
+    <div>
+        <label asp-for="Title">Tytuł</label><br/>
+        <input  class="form-control"  asp-for="Title"/>
+        <div>
+            <span asp-validation-for="Title" class="text-danger"></span>
+        </div>
+    </div>
+    <div >
+        <label asp-for="Author">Autor</label><br/>
+        <input class="form-control" asp-for="Author" />
+        <div>
+            <span asp-validation-for="Author" class="text-danger"></span>
+        </div>
+    </div>
+    <div>
+        <label asp-for="CreateDate">Data Wydania</label><br/>
+        <input class="form-control" asp-for="CreateDate" />
+        <div>
+            <span asp-validation-for="CreateDate" class="text-danger"></span>
+        </div>
+    </div>
+    <input hidden asp-for="Id" />
+    <button class="form-control btn btn-primary" type="submit">Zapisz</button><br/>
+</form>
+
